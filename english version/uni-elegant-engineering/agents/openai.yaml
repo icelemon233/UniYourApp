@@ -1,0 +1,6 @@
+interface:
+  display_name: "uni-elegant-engineering"
+  short_description: "Application engineering, UI guidance, and private preferences"
+  default_prompt: "Use $uni-elegant-engineering for this application task, following project conventions and existing preferences. Load only relevant guidance."
+policy:
+  allow_implicit_invocation: true
