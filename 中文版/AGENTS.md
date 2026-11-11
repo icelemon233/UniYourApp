@@ -1,6 +1,6 @@
 # 版本维护
 
-本目录是完整中文版技能包。仓库根目录包含“中文版”、`English_Version` 和双语 `README.md`。安装时使用名称 `uni-elegant-engineering`。
+本目录是完整中文版技能包。仓库根目录包含“中文版”、`English_Version` 和双语 `README.md`。安装时使用名称 `uni-your-app`。
 
 - 规范按工程、共用 UI、Web、Windows、验证和 README 六类维护，中英文行为与权限边界保持对应。
 - 配置与运行工具在两版中各自完整。修改当前版本的通用工具后，运行 `node scripts/sync-versions.mjs` 同步另一版，分别维护自然语言规范和界面元数据。

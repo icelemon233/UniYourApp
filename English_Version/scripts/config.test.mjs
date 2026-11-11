@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
 import http from 'node:http';
-import { validateConfig, resolveConfig, setValue, readLayer, saveConfig, loadState, ensurePrivateProjectDirectory, suggestConfig } from './config-core.mjs';
+import { validateConfig, resolveConfig, setValue, readLayer, saveConfig, loadState, locations, ensurePrivateProjectDirectory, suggestConfig } from './config-core.mjs';
 import { startServer } from './config-server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,6 +24,69 @@ async function fixture(t) {
   return { dir, userDir, project };
 }
 const empty = () => ({ schemaVersion: 1 });
+
+test('renamed configuration paths preserve legacy settings and prefer each new layer when present', async t => {
+  const { dir, userDir, project } = await fixture(t);
+  const options = { project, env: { APPDATA: dir, XDG_CONFIG_HOME: dir }, platform: 'win32' };
+  const legacyPersonal = path.join(dir, 'uni-elegant-engineering', 'config.json');
+  const legacyProject = path.join(project, '.uni-elegant-engineering', 'config.local.json');
+  await saveConfig(legacyPersonal, { schemaVersion: 1, appearance: { theme: 'dark' } }, 'missing');
+  await saveConfig(legacyProject, { schemaVersion: 1, appearance: { colors: { accent: '#345678' } } }, 'missing');
+  let state = await loadState(options);
+  assert.equal(state.paths.personal, legacyPersonal);
+  assert.equal(state.paths.project, legacyProject);
+  assert.equal(state.effective.appearance.theme, 'dark');
+  assert.equal(state.effective.appearance.colors.accent, '#345678');
+  const changed = spawnSync(process.execPath, [
+    path.join(root, 'scripts', 'config.mjs'), 'set', '--scope', 'project',
+    '--project', project, '--user-dir', userDir, '--key', 'appearance.theme', '--value', 'light',
+  ], { encoding: 'utf8' });
+  assert.equal(changed.status, 0, changed.stdout + changed.stderr);
+  assert.equal((await readLayer(legacyProject)).data.appearance.theme, 'light');
+  const currentPersonal = path.join(dir, 'uni-your-app', 'config.json');
+  const currentProject = path.join(project, '.uni-your-app', 'config.local.json');
+  await saveConfig(currentPersonal, { schemaVersion: 1, appearance: { theme: 'system' } }, 'missing');
+  await saveConfig(currentProject, { schemaVersion: 1, appearance: { colors: { accent: '#567890' } } }, 'missing');
+  for (const platform of ['win32', 'linux']) {
+    state = await loadState({ ...options, platform });
+    assert.equal(state.paths.personal, currentPersonal);
+    assert.equal(state.paths.project, currentProject);
+    assert.equal(state.effective.appearance.theme, 'system');
+    assert.equal(state.effective.appearance.colors.accent, '#567890');
+  }
+  assert.equal((await readLayer(legacyPersonal)).data.appearance.theme, 'dark');
+});
+
+test('invalid settings under the new name remain visible alongside legacy settings', async t => {
+  const { dir, project } = await fixture(t);
+  const options = { project, env: { APPDATA: dir }, platform: 'win32' };
+  await saveConfig(path.join(dir, 'uni-elegant-engineering', 'config.json'), empty(), 'missing');
+  await saveConfig(path.join(project, '.uni-elegant-engineering', 'config.local.json'), empty(), 'missing');
+  const currentPersonal = path.join(dir, 'uni-your-app', 'config.json');
+  const currentProject = path.join(project, '.uni-your-app', 'config.local.json');
+  for (const file of [currentPersonal, currentProject]) {
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, '{broken');
+  }
+  const state = await loadState(options);
+  assert.equal(state.paths.personal, currentPersonal);
+  assert.equal(state.paths.project, currentProject);
+  assert.equal(state.layers.personal.errors[0].code, 'json');
+  assert.equal(state.layers.project.errors[0].code, 'json');
+});
+
+test('legacy project writes retain Git protection when a new-name configuration appears', async t => {
+  const { userDir, project } = await fixture(t);
+  const legacy = path.join(project, '.uni-elegant-engineering', 'config.local.json');
+  await saveConfig(legacy, empty(), 'missing');
+  const selected = locations({ userDir, project }).project;
+  await saveConfig(path.join(project, '.uni-your-app', 'config.local.json'), empty(), 'missing');
+  await ensurePrivateProjectDirectory(project, selected);
+  execFileSync('git', ['-C', project, 'check-ignore', '--quiet', '--', '.uni-elegant-engineering/config.local.json']);
+  execFileSync('git', ['-C', project, 'add', '--force', '.uni-elegant-engineering/config.local.json']);
+  await assert.rejects(ensurePrivateProjectDirectory(project, selected), error => error.code === 'tracked');
+  await assert.rejects(ensurePrivateProjectDirectory(project, path.join(project, 'public', 'config.local.json')));
+});
 
 test('preferences remain optional and cannot introduce execution or approval rules', () => {
   assert.deepEqual(validateConfig(empty()), []);
@@ -71,27 +134,27 @@ test('project preferences are excluded locally, including projects nested within
   const { project } = await fixture(t), nested = path.join(project, 'packages', 'sample');
   await fs.mkdir(nested, { recursive: true });
   await ensurePrivateProjectDirectory(nested);
-  await saveConfig(path.join(nested, '.uni-elegant-engineering', 'config.local.json'), empty(), 'missing');
-  const result = execFileSync('git', ['-C', project, 'check-ignore', 'packages/sample/.uni-elegant-engineering/config.local.json'], { encoding: 'utf8' });
+  await saveConfig(path.join(nested, '.uni-your-app', 'config.local.json'), empty(), 'missing');
+  const result = execFileSync('git', ['-C', project, 'check-ignore', 'packages/sample/.uni-your-app/config.local.json'], { encoding: 'utf8' });
   assert.match(result, /config\.local\.json/);
   assert.equal((await fs.readdir(project)).includes('.gitignore'), false);
 });
 test('already tracked private project values are not modified by configuration commands', async t => {
-  const { project } = await fixture(t), dir = path.join(project, '.uni-elegant-engineering');
+  const { project } = await fixture(t), dir = path.join(project, '.uni-your-app');
   await fs.mkdir(dir); await fs.writeFile(path.join(dir, 'config.local.json'), JSON.stringify(empty()));
-  execFileSync('git', ['-C', project, 'add', '.uni-elegant-engineering/config.local.json']);
+  execFileSync('git', ['-C', project, 'add', '.uni-your-app/config.local.json']);
   await assert.rejects(ensurePrivateProjectDirectory(project), error => error.status === 409);
 });
 test('Git-special project names remain excluded and negated privacy rules fail before writing', async t => {
   const { project } = await fixture(t), nested = path.join(project, 'packages', '[app]');
   await fs.mkdir(nested, { recursive: true });
   await ensurePrivateProjectDirectory(nested);
-  const privateFile = path.join(nested, '.uni-elegant-engineering', 'config.local.json');
+  const privateFile = path.join(nested, '.uni-your-app', 'config.local.json');
   await saveConfig(privateFile, empty(), 'missing');
   assert.equal(execFileSync('git', ['-C', project, 'ls-files', '--others', '--exclude-standard'], { encoding: 'utf8' }).trim(), '');
-  await fs.writeFile(path.join(project, '.gitignore'), '!.uni-elegant-engineering/\n');
+  await fs.writeFile(path.join(project, '.gitignore'), '!.uni-your-app/\n');
   await assert.rejects(ensurePrivateProjectDirectory(project), error => error.code === 'notIgnored');
-  assert.equal((await readLayer(path.join(project, '.uni-elegant-engineering', 'config.local.json'))).exists, false);
+  assert.equal((await readLayer(path.join(project, '.uni-your-app', 'config.local.json'))).exists, false);
 });
 test('automatic recognition uses explicit tokens and does not choose conflicting project values', async t => {
   const { project } = await fixture(t);
@@ -151,13 +214,13 @@ test('visual editor saves only the selected layer and rejects stale drafts', asy
   let result = await request('/api/save', { method: 'POST', body: JSON.stringify({ scope: 'personal', data, expectedRevision: 'missing' }) });
   assert.equal(result.status, 200); await result.json();
   assert.equal((await readLayer(path.join(userDir, 'config.json'))).data.appearance.theme, 'dark');
-  assert.equal((await readLayer(path.join(project, '.uni-elegant-engineering', 'config.local.json'))).exists, false);
+  assert.equal((await readLayer(path.join(project, '.uni-your-app', 'config.local.json'))).exists, false);
   result = await request('/api/save', { method: 'POST', body: JSON.stringify({ scope: 'personal', data: empty(), expectedRevision: 'missing' }) });
   assert.equal(result.status, 409);
 });
 test('a failed project selection keeps the previously selected project', async t => {
   const { request, dir, project } = await browserFixture(t), rejected = path.join(dir, 'rejected');
-  await fs.mkdir(path.join(rejected, '.uni-elegant-engineering', 'config.local.json'), { recursive: true });
+  await fs.mkdir(path.join(rejected, '.uni-your-app', 'config.local.json'), { recursive: true });
   const response = await request('/api/project', { method: 'POST', body: JSON.stringify({ path: rejected }) });
   assert.notEqual(response.status, 200); await response.json();
   const state = await (await request('/api/state')).json();
@@ -166,7 +229,7 @@ test('a failed project selection keeps the previously selected project', async t
 test('a concurrent project switch cannot redirect an in-flight save or its Git protection', async t => {
   const { request, project, dir } = await browserFixture(t), second = path.join(dir, 'second');
   await fs.mkdir(second); execFileSync('git', ['init', '-q', second]);
-  const file = path.join(project, '.uni-elegant-engineering', 'config.local.json');
+  const file = path.join(project, '.uni-your-app', 'config.local.json');
   await fs.mkdir(path.dirname(file)); await fs.writeFile(file, JSON.stringify(empty()));
   const revision = (await readLayer(file)).revision;
   const originalRead = fs.readFile;
@@ -186,8 +249,8 @@ test('a concurrent project switch cannot redirect an in-flight save or its Git p
     const saved = await pending; assert.equal(saved.status, 200); const result = await saved.json();
     assert.equal(result.projectRoot, await fs.realpath(project));
     assert.equal((await readLayer(file)).data.appearance.theme, 'dark');
-    assert.equal(execFileSync('git', ['-C', project, 'ls-files', '--others', '--exclude-standard', '--', '.uni-elegant-engineering'], { encoding: 'utf8' }).trim(), '');
-    assert.equal((await readLayer(path.join(second, '.uni-elegant-engineering', 'config.local.json'))).exists, false);
+    assert.equal(execFileSync('git', ['-C', project, 'ls-files', '--others', '--exclude-standard', '--', '.uni-your-app'], { encoding: 'utf8' }).trim(), '');
+    assert.equal((await readLayer(path.join(second, '.uni-your-app', 'config.local.json'))).exists, false);
   } finally { release(); fs.readFile = originalRead; if (pending) await pending.catch(() => {}); }
 });
 test('images stay in memory until save, then enter private asset storage', async t => {

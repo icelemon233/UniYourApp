@@ -11,7 +11,7 @@ const repository = await findRepositoryRoot(packageRoot);
 const base = path.join(packageRoot, 'work', 'package-validation-tests');
 const validator = path.join(packageRoot, 'scripts', 'validate.mjs');
 const ignored = new Set([
-  '.git', '.local', '.uni-elegant-engineering', 'work', 'outputs', 'node_modules', '__pycache__',
+  '.git', '.local', '.uni-your-app', '.uni-elegant-engineering', 'work', 'outputs', 'node_modules', '__pycache__',
 ]);
 await fs.mkdir(base, { recursive: true });
 

@@ -1,4 +1,4 @@
-# uni-elegant-engineering
+# UniYourApp
 
 [中文](#中文版) | [English](#english)
 
@@ -8,13 +8,13 @@
 
 ### 安装
 
-在 Codex 中发送以下请求，将选中的版本安装为 `uni-elegant-engineering`。
+在 Codex 中发送以下请求，将选中的版本安装为 `uni-your-app`。
 
 ```text
-使用 $skill-installer 从 icelemon233/uni-elegant-engineering 仓库的“中文版”目录安装技能，安装名称指定为 uni-elegant-engineering。
+使用 $skill-installer 从 icelemon233/UniYourApp 仓库的“中文版”目录安装技能，安装名称指定为 uni-your-app。
 ```
 
-手动安装时，将选定版本的文件夹命名为 `uni-elegant-engineering`，放入代理的技能目录。
+手动安装时，将选定版本的文件夹命名为 `uni-your-app`，放入代理的技能目录。
 
 | 版本 | 技能入口 |
 | --- | --- |
@@ -24,7 +24,7 @@
 ### 使用
 
 ```text
-使用 $uni-elegant-engineering 修复设置页的对齐和重复说明，
+使用 $uni-your-app 修复设置页的对齐和重复说明，
 沿用现有主题，并检查受影响控件的实际表现。
 ```
 
@@ -36,7 +36,7 @@ node "<技能目录>/scripts/config.mjs" ui --project "<项目目录>" --lang zh
 
 本地编辑器支持个人／项目切换、配色与字体编辑、素材选择、控件样例预览、JSON 导入导出和保存前差异检查。修改先进入草稿，保存时校验并备份旧文件。实际应用效果按项目要求验证。
 
-个人默认位于系统用户配置目录，项目覆盖位于 `.uni-elegant-engineering/config.local.json`，写入前确认 Git 实际排除。当前任务要求与项目明确约定优先，未设置的选项沿用项目。
+个人默认位于系统用户配置目录下的 `uni-your-app`，项目覆盖位于 `.uni-your-app/config.local.json`，写入前确认 Git 实际排除。已有旧名称配置会继续使用，同层新名称配置存在时优先使用新文件。当前任务要求与项目明确约定优先，未设置的选项沿用项目。
 
 ### 范围
 
@@ -52,18 +52,18 @@ A general application-engineering skill with task-specific guidance for engineer
 
 ### Install
 
-Send this request in Codex to install the English edition under the name `uni-elegant-engineering`.
+Send this request in Codex to install the English edition under the name `uni-your-app`.
 
 ```text
-Use $skill-installer to install the English_Version directory from icelemon233/uni-elegant-engineering. Set the installed skill name to uni-elegant-engineering.
+Use $skill-installer to install the English_Version directory from icelemon233/UniYourApp. Set the installed skill name to uni-your-app.
 ```
 
-For manual installation, name the selected edition folder `uni-elegant-engineering` and place it in your agent's skill directory. Choose one edition.
+For manual installation, name the selected edition folder `uni-your-app` and place it in your agent's skill directory. Choose one edition.
 
 ### Use
 
 ```text
-Use $uni-elegant-engineering to fix settings-page alignment and redundant helper text.
+Use $uni-your-app to fix settings-page alignment and redundant helper text.
 Keep the existing theme and check the affected controls in the actual interface.
 ```
 
@@ -75,7 +75,7 @@ node "<skill-directory>/scripts/config.mjs" ui --project "<project-directory>" -
 
 The local editor supports personal/project layers, palette and typography controls, asset selection, sample-control previews, JSON import/export, and a diff before saving. Edits remain drafts until saved. Saves validate and retain a backup. Verify the actual application according to its project requirements.
 
-Personal defaults live in the operating system's user configuration directory. Project overrides live in `.uni-elegant-engineering/config.local.json`, with effective Git exclusion verified before writing. The current request and explicit project conventions take precedence. Unset preferences follow the project.
+Personal defaults live in `uni-your-app` under the operating system's user configuration directory. Project overrides live in `.uni-your-app/config.local.json`, with effective Git exclusion verified before writing. Existing configurations under the previous name continue to work. Each layer prefers its new-name file when present. The current request and explicit project conventions take precedence. Unset preferences follow the project.
 
 ### Scope
 

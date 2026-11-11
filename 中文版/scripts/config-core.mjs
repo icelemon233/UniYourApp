@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { lstatSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
@@ -14,13 +15,32 @@ export { ConfigError, clone };
 export const digest = value => crypto.createHash('sha256').update(value).digest('hex');
 export const { validateConfig, assertConfig, resolveConfig, changes, setValue } = createConfigTools(schema);
 
+function configurationDirectory(base, name, legacyName, filename) {
+  const current = path.join(base, name);
+  const legacy = path.join(base, legacyName);
+  for (const directory of [current, legacy]) {
+    try {
+      lstatSync(path.join(directory, filename));
+      return directory;
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+  return current;
+}
 export function personalDirectory({ userDir, env = process.env, platform = process.platform } = {}) {
   if (userDir) return path.resolve(userDir);
   const base = platform === 'win32' ? env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming') : env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
-  return path.join(base, 'uni-elegant-engineering');
+  return configurationDirectory(base, 'uni-your-app', 'uni-elegant-engineering', 'config.json');
 }
-export function locations({ userDir, project } = {}) {
-  return { personal: path.join(personalDirectory({ userDir }), 'config.json'), project: project ? path.join(path.resolve(project), '.uni-elegant-engineering', 'config.local.json') : null };
+export function locations({ userDir, project, env, platform } = {}) {
+  const projectDirectory = project
+    ? configurationDirectory(path.resolve(project), '.uni-your-app', '.uni-elegant-engineering', 'config.local.json')
+    : null;
+  return {
+    personal: path.join(personalDirectory({ userDir, env, platform }), 'config.json'),
+    project: projectDirectory ? path.join(projectDirectory, 'config.local.json') : null,
+  };
 }
 async function regularFile(file) {
   try { const stat = await fs.lstat(file); if (!stat.isFile() || stat.isSymbolicLink()) throw new ConfigError('Configuration must be a regular file.'); return stat; }
@@ -43,12 +63,17 @@ export async function loadState(options = {}) {
   const [personal, project] = await Promise.all([readLayer(paths.personal), readLayer(paths.project)]);
   return { paths, projectRoot: options.project ? path.resolve(options.project) : null, layers: { personal, project }, ...resolveConfig(personal.data, project.data) };
 }
-export async function ensurePrivateProjectDirectory(project) {
+export async function ensurePrivateProjectDirectory(project, file = locations({ project }).project) {
   const root = await fs.realpath(project);
-  const dir = path.join(root, '.uni-elegant-engineering');
+  const name = path.basename(path.dirname(file));
+  const dir = path.join(root, name);
+  if (!['.uni-your-app', '.uni-elegant-engineering'].includes(name)
+      || path.resolve(file) !== path.join(dir, 'config.local.json')) {
+    throw new ConfigError('Project configuration must use its private configuration directory.');
+  }
   try { if ((await fs.lstat(dir)).isSymbolicLink()) throw new ConfigError('Project configuration directory cannot be a link.'); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
-  let exclude, exclusion = '/.uni-elegant-engineering/';
+  let exclude, exclusion = `/${name}/`;
   const gitOptions = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] };
   let gitRoot;
   try { gitRoot = execFileSync('git', ['-C', root, 'rev-parse', '--show-toplevel'], gitOptions).trim(); }
@@ -57,8 +82,8 @@ export async function ensurePrivateProjectDirectory(project) {
     exclude = execFileSync('git', ['-C', root, 'rev-parse', '--path-format=absolute', '--git-path', 'info/exclude'], gitOptions).trim();
     const prefix = path.relative(gitRoot, root).split(path.sep).join('/');
     const escaped = prefix.replace(/([\\*?\[\]#! ])/g, '\\$1');
-    exclusion = `/${escaped ? escaped + '/' : ''}.uni-elegant-engineering/`;
-    const tracked = execFileSync('git', ['-C', root, 'ls-files', '--', '.uni-elegant-engineering'], gitOptions).trim();
+    exclusion = `/${escaped ? escaped + '/' : ''}${name}/`;
+    const tracked = execFileSync('git', ['-C', root, 'ls-files', '--', name], gitOptions).trim();
     if (tracked) throw new ConfigError('Private configuration is already tracked by Git. Move it out of tracked content before saving.', 409, [], 'tracked');
   } else exclude = path.join(root, '.gitignore');
   let existing = ''; try { existing = await fs.readFile(exclude, 'utf8'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
@@ -71,7 +96,7 @@ export async function ensurePrivateProjectDirectory(project) {
     const relative = path.relative(gitRoot, dir).split(path.sep).join('/');
     for (const target of [relative + '/', relative + '/config.local.json']) {
       try { execFileSync('git', ['-C', gitRoot, 'check-ignore', '--no-index', '--quiet', '--', target], gitOptions); }
-      catch { throw new ConfigError('Project ignore rules expose private configuration. Add /.uni-elegant-engineering/ to the project .gitignore before saving.', 409, [], 'notIgnored'); }
+      catch { throw new ConfigError(`Project ignore rules expose private configuration. Add /${name}/ to the project .gitignore before saving.`, 409, [], 'notIgnored'); }
     }
   }
   return dir;

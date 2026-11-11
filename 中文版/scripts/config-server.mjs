@@ -131,7 +131,7 @@ export async function startServer(initial = {}) {
           const item = drafts.get(value.slice(6));
           if (!item || item.scope !== scope || (scope === 'project' && item.project !== context.project)) throw new ConfigError('Draft image belongs to another configuration.');
         }
-        if (scope === 'project') await ensurePrivateProjectDirectory(context.project);
+        if (scope === 'project') await ensurePrivateProjectDirectory(context.project, file);
         for (const role of roles) {
           const value = data.assets?.[role]?.path;
           if (!value?.startsWith('draft:')) continue;

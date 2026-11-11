@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { assertConfig, loadState, locations, readLayer, saveConfig, ensurePrivateProjectDirectory, suggestConfig, setValue } from './config-core.mjs';
 
-const help = `uni-elegant-engineering configuration (Node.js 24)
+const help = `UniYourApp configuration (Node.js 24)
 
   ui        Open the local visual editor
   init      Create a missing configuration; inherit known project color tokens
@@ -90,7 +90,7 @@ export async function run(argv = process.argv.slice(2)) {
     data = setValue(previous.data, options.key, value, options.unset);
   } else throw new Error(`Unknown command: ${command}`);
   assertConfig(data);
-  if (scope === 'project') await ensurePrivateProjectDirectory(settings.project);
+  if (scope === 'project') await ensurePrivateProjectDirectory(settings.project, file);
   await saveConfig(file, data, previous.revision);
   console.log(`Saved ${scope} configuration: ${file}`);
 }

@@ -19,7 +19,7 @@ const packageFiles = [
   ...commonFiles,
 ].sort();
 const ignoredDirectories = new Set([
-  '.git', '.local', '.uni-elegant-engineering', 'work', 'outputs', 'node_modules', '__pycache__',
+  '.git', '.local', '.uni-your-app', '.uni-elegant-engineering', 'work', 'outputs', 'node_modules', '__pycache__',
 ]);
 const errors = [];
 let linkCount = 0;
@@ -107,7 +107,7 @@ async function checkPackage(root) {
     errors.push('Missing skill description.');
   }
   const metadata = await fs.readFile(path.join(root, 'agents/openai.yaml'), 'utf8');
-  if (!/default_prompt:.*\$uni-elegant-engineering/.test(metadata)) {
+  if (!/default_prompt:.*\$uni-your-app/.test(metadata)) {
     errors.push('Default prompt must invoke this skill.');
   }
   const description = metadata.match(/short_description:\s*"([^"]+)"/)?.[1];
@@ -139,7 +139,7 @@ async function checkRepository(root) {
     const tracked = execFileSync('git', ['-C', root, 'ls-files', '-z'], {
       encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
     }).split('\0');
-    if (tracked.some(file => /(^|\/)(\.local|\.uni-elegant-engineering|work|outputs)\//.test(file))) {
+    if (tracked.some(file => /(^|\/)(\.local|\.uni-your-app|\.uni-elegant-engineering|work|outputs)\//.test(file))) {
       errors.push('Private or generated material is tracked.');
     }
   } catch (error) {

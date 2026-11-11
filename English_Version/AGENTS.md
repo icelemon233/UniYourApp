@@ -1,6 +1,6 @@
 # Edition maintenance
 
-This directory is the complete English skill package. The repository root contains `中文版`, `English_Version`, and one bilingual `README.md`. Install the package under the name `uni-elegant-engineering`.
+This directory is the complete English skill package. The repository root contains `中文版`, `English_Version`, and one bilingual `README.md`. Install the package under the name `uni-your-app`.
 
 - Maintain the six engineering, shared UI, Web, Windows, verification, and README references with equivalent behavior and authority across languages.
 - Each edition contains its complete configuration tools. After editing common tools in this edition, run `node scripts/sync-versions.mjs` to synchronize the other edition. Maintain translated guidance and interface metadata separately.

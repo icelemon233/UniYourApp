@@ -1,9 +1,9 @@
 ---
-name: uni-elegant-engineering
+name: uni-your-app
 description: "Build, refactor, and review application engineering and interfaces, write project READMEs, and configure design preferences. Preserve the existing stack and load only relevant engineering, UI, Web, Windows, verification, and documentation guidance; this is not a full delivery orchestrator."
 ---
 
-# uni-elegant-engineering
+# UniYourApp
 
 Preserve the product goal, existing stack, user work, and explicit project conventions. Read only the guidance needed for the current task and verify changes proportionately.
 
@@ -28,7 +28,8 @@ Configuration follows the [JSON Schema](config.schema.json). Every preference is
 
 Precedence: **current request → explicit project conventions → project configuration → personal defaults → general principles**. The tool resolves the two JSON layers and their origins; the agent evaluates current instructions and project conventions, which configuration must not override.
 
-- Personal values live in the operating system's user configuration directory. Project overrides live in `.uni-elegant-engineering/config.local.json`; add and verify local Git exclusion before writing. Refuse to save tracked values or values exposed by overriding project rules, and explain how to fix the exclusion. Do not commit them automatically.
+- Personal values live in the operating system's user configuration directory. Project overrides live in `.uni-your-app/config.local.json`; add and verify local Git exclusion before writing. Refuse to save tracked values or values exposed by overriding project rules, and explain how to fix the exclusion. Do not commit them automatically.
+- Continue reading and saving existing personal or project configurations in their previous-name directories. Each layer prefers its new-name configuration when present. Resolve relative assets against the selected configuration file.
 - Ordinary development only reads configuration. Missing configuration does not block work or justify creating a file for a small fix.
 - During project initialization or an explicit preference update, inspect existing design tokens and project conventions. Inherit established facts, ask only about consequential unknown choices, and update the relevant fields without resetting unrelated values.
 - `init` creates missing configuration only and conservatively recognizes semantic colors in known JSON token files. It does not understand every framework. The agent confirms other preferences from actual sources, validates them, and persists them through `set` or `import`. Conflicting sources remain unset rather than being guessed.

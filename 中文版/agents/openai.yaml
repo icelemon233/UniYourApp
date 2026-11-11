@@ -1,6 +1,6 @@
 interface:
-  display_name: "uni-elegant-engineering"
+  display_name: "UniYourApp"
   short_description: "通用应用工程与界面规范，支持私有项目偏好和本地可视化配置"
-  default_prompt: "使用 $uni-elegant-engineering 完成当前应用任务，读取项目约定和已有偏好，只加载相关规范。"
+  default_prompt: "使用 $uni-your-app 完成当前应用任务，读取项目约定和已有偏好，只加载相关规范。"
 policy:
   allow_implicit_invocation: true

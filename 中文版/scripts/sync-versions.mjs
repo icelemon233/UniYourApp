@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const editionNames = ['中文版', 'English_Version'];
-export const skillName = 'uni-elegant-engineering';
+export const skillName = 'uni-your-app';
 export const runtimeFiles = [
   'config.schema.json',
   'scripts/config.mjs',
