@@ -5,8 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
 import http from 'node:http';
-import { validateConfig, resolveConfig, setValue, readLayer, saveConfig, loadState, ensurePrivateProjectDirectory, suggestConfig } from '../shared/scripts/config-core.mjs';
-import { startServer } from '../shared/scripts/config-server.mjs';
+import { validateConfig, resolveConfig, setValue, readLayer, saveConfig, loadState, ensurePrivateProjectDirectory, suggestConfig } from './config-core.mjs';
+import { startServer } from './config-server.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const base = path.join(root, 'work', 'configuration-tests');
@@ -115,7 +115,7 @@ test('unsupported token-file roots produce notes rather than aborting initializa
   }
 });
 test('CLI init is repeatable without resetting existing values', async t => {
-  const settings = await fixture(t), cli = path.join(root, 'shared/scripts/config.mjs');
+  const settings = await fixture(t), cli = path.join(root, 'scripts/config.mjs');
   const run = args => spawnSync(process.execPath, [cli, ...args, '--user-dir', settings.userDir], { encoding: 'utf8' });
   assert.equal(run(['init']).status, 0);
   assert.equal(run(['set', '--key', 'appearance.theme', '--value', 'dark']).status, 0);

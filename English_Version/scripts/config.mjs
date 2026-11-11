@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { assertConfig, loadState, locations, readLayer, saveConfig, ensurePrivateProjectDirectory, suggestConfig, setValue } from './config-core.mjs';
@@ -95,6 +94,6 @@ export async function run(argv = process.argv.slice(2)) {
   await saveConfig(file, data, previous.revision);
   console.log(`Saved ${scope} configuration: ${file}`);
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && await fs.realpath(process.argv[1]) === fileURLToPath(import.meta.url)) {
   run().catch(error => { console.error(error.message); if (error.details?.length) console.error(JSON.stringify(error.details, null, 2)); process.exitCode = 1; });
 }
