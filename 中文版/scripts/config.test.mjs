@@ -75,7 +75,7 @@ test('invalid settings under the new name remain visible alongside legacy settin
   assert.equal(state.layers.project.errors[0].code, 'json');
 });
 
-test('legacy project writes retain Git protection when a new-name configuration appears', async t => {
+test('selected private project paths retain Git protection across renames and directory links', async t => {
   const { userDir, project } = await fixture(t);
   const legacy = path.join(project, '.uni-elegant-engineering', 'config.local.json');
   await saveConfig(legacy, empty(), 'missing');
@@ -83,6 +83,10 @@ test('legacy project writes retain Git protection when a new-name configuration 
   await saveConfig(path.join(project, '.uni-your-app', 'config.local.json'), empty(), 'missing');
   await ensurePrivateProjectDirectory(project, selected);
   execFileSync('git', ['-C', project, 'check-ignore', '--quiet', '--', '.uni-elegant-engineering/config.local.json']);
+  const alias = path.join(path.dirname(project), 'project-link');
+  await fs.symlink(project, alias, 'junction');
+  await ensurePrivateProjectDirectory(alias);
+  execFileSync('git', ['-C', project, 'check-ignore', '--quiet', '--', '.uni-your-app/config.local.json']);
   execFileSync('git', ['-C', project, 'add', '--force', '.uni-elegant-engineering/config.local.json']);
   await assert.rejects(ensurePrivateProjectDirectory(project, selected), error => error.code === 'tracked');
   await assert.rejects(ensurePrivateProjectDirectory(project, path.join(project, 'public', 'config.local.json')));

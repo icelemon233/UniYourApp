@@ -68,7 +68,7 @@ export async function ensurePrivateProjectDirectory(project, file = locations({ 
   const name = path.basename(path.dirname(file));
   const dir = path.join(root, name);
   if (!['.uni-your-app', '.uni-elegant-engineering'].includes(name)
-      || path.resolve(file) !== path.join(dir, 'config.local.json')) {
+      || path.resolve(file) !== path.join(path.resolve(project), name, 'config.local.json')) {
     throw new ConfigError('Project configuration must use its private configuration directory.');
   }
   try { if ((await fs.lstat(dir)).isSymbolicLink()) throw new ConfigError('Project configuration directory cannot be a link.'); }
