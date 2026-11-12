@@ -1,86 +1,137 @@
-# UniYourApp
+![UniYourApp](中文版/assets/readme-hero.png)
 
-[中文](#中文版) | [English](#english)
+UniYourApp 是一套给 AI 编程助手（Agent）使用的软件工程技能包，帮助助手按照统一的工程、界面和验证标准开发各类软件项目。
 
-## 中文版
+UniYourApp is a software engineering skill for AI coding agents. It helps agents develop software projects with consistent engineering, UI, and verification standards.
 
-通用应用工程技能，按任务提供工程、UI、Web、Windows、验证和 README 规范，并支持私有 JSON 偏好与本地可视化配置。
+## 用途与能力 · What it does
 
-### 安装
+你可以让 Agent 用它创建新项目，也可以为已有项目增加功能、整理代码、调整界面或编写项目说明。Agent 会按任务读取相关规范，沿用项目的技术栈和明确约定。
 
-在 Codex 中发送以下请求，将选中的版本安装为 `uni-your-app`。
+Use it to create new projects, extend existing ones, refactor code, refine interfaces, or write project documentation. The agent reads the guidance relevant to the task and follows the project's existing stack and conventions.
 
-```text
-使用 $skill-installer 从 icelemon233/UniYourApp 仓库的“中文版”目录安装技能，安装名称指定为 uni-your-app。
-```
+规范覆盖工程实现、界面交互、改动验证和 README 编写，平台相关要求按任务读取。个人与项目偏好可以复用，让多个项目采用一致的配色、字体和布局约定。
 
-手动安装时，将选定版本的文件夹命名为 `uni-your-app`，放入代理的技能目录。
+The guidance covers engineering, interface behavior, verification, and README writing, with platform-specific requirements loaded as needed. Reusable personal and project preferences help maintain consistent colors, typography, and layout conventions across projects.
 
-| 版本 | 技能入口 |
-| --- | --- |
-| 中文版 | [SKILL.md](中文版/SKILL.md) |
-| English_Version | [SKILL.md](English_Version/SKILL.md) |
+## 开始使用 · Get started
 
-### 使用
+### 1. 准备 Agent · Prepare your agent
 
-```text
-使用 $uni-your-app 修复设置页的对齐和重复说明，
-沿用现有主题，并检查受影响控件的实际表现。
-```
+准备一个能够读取项目文件的 AI 编程助手。UniYourApp 采用 Agent Skills 格式，安装位置与导入方式由你使用的工具决定。
 
-需要设置偏好时，可以让 Codex 初始化当前项目的配置并打开编辑器。配置工具使用 Node.js 24，也可从已安装的技能目录启动。
+Use an AI coding agent that can read project files. UniYourApp follows the Agent Skills format. Your tool determines where skills are installed and how they are imported.
+
+### 2. 安装技能 · Install the skill
+
+将下面的安装请求发给 Agent，选择你希望使用的语言版本。中文版和英文版各自包含完整技能，安装其中一版即可。
+
+Send your agent the installation request for your preferred language. Each edition contains the complete skill, so choose one.
 
 ```text
-node "<技能目录>/scripts/config.mjs" ui --project "<项目目录>" --lang zh
+请从 GitHub 仓库 icelemon233/UniYourApp
+安装“中文版”目录中的 Skill，名称设为 uni-your-app。
+保留该版本的全部文件，确认实际安装位置，
+并检查能否读取技能及其引用的规范。
 ```
-
-本地编辑器支持个人／项目切换、配色与字体编辑、素材选择、控件样例预览、JSON 导入导出和保存前差异检查。修改先进入草稿，保存时校验并备份旧文件。实际应用效果按项目要求验证。
-
-个人默认位于系统用户配置目录下的 `uni-your-app`，项目覆盖位于 `.uni-your-app/config.local.json`，写入前确认 Git 实际排除。已有旧名称配置会继续使用，同层新名称配置存在时优先使用新文件。当前任务要求与项目明确约定优先，未设置的选项沿用项目。
-
-### 范围
-
-工程规范覆盖模块、数据、异步行为与平台边界。界面规范覆盖信息层级、控件、响应式、焦点和状态。验证根据改动风险选择检查，README 规范帮助组织用途、安装、示例和文档入口。
-
-**避免不必要的次要标签和描述，让布局本身来传达信息。** 保留操作、标签、条件、错误和无障碍所需的信息。
-
-[配置格式](中文版/config.schema.json) · [README 方法](中文版/references/readme.md) · [维护约定](中文版/AGENTS.md) · [MIT 许可证](中文版/LICENSE)
-
-## English
-
-A general application-engineering skill with task-specific guidance for engineering, UI, Web, Windows, verification, and READMEs. It supports private JSON preferences and a local visual editor.
-
-### Install
-
-Send this request in Codex to install the English edition under the name `uni-your-app`.
 
 ```text
-Use $skill-installer to install the English_Version directory from icelemon233/UniYourApp. Set the installed skill name to uni-your-app.
+Install the Skill from this GitHub repository
+icelemon233/UniYourApp
+Use the English_Version directory and name it uni-your-app.
+Retain the entire edition, confirm its installation path,
+and check that you can read the skill and its guidance.
 ```
 
-For manual installation, name the selected edition folder `uni-your-app` and place it in your agent's skill directory. Choose one edition.
+<details>
+<summary>手动安装 · Manual installation</summary>
 
-### Use
+1. 在仓库页面选择 **Code → Download ZIP**，下载后解压。
+
+   On the repository page, select **Code → Download ZIP**, then extract the archive.
+
+2. 选择 `中文版` 或 `English_Version`，将选中的文件夹重命名为 `uni-your-app`。保留文件夹内的全部内容，入口位于 `uni-your-app/SKILL.md`。
+
+   Choose `中文版` or `English_Version` and rename the selected folder to `uni-your-app`. Keep everything inside it. The entry point is `uni-your-app/SKILL.md`.
+
+3. 按所用 Agent 的说明，导入整个文件夹，或将它放入工具的技能目录。
+
+   Follow your agent's instructions to import the whole folder or place it in the tool's skills directory.
+
+4. 按工具要求刷新技能或打开新会话，确认 `uni-your-app` 已被识别。使用直接读取文件的 Agent 时，在对话中指定 `SKILL.md` 的实际位置，请它读取入口及相关引用文件。
+
+   Refresh skills or start a new session as required by your tool, then confirm that `uni-your-app` is recognized. With an agent that reads files directly, give it the actual path to `SKILL.md` and ask it to read the entry point and relevant referenced files.
+
+</details>
+
+### 3. 提出需求 · Start using it
+
+在项目中说明你想做的软件、主要功能和运行平台，并请 Agent 使用 UniYourApp。可以把下面方括号中的内容换成自己的需求。
+
+Describe the software you want to build, its main features, and where it should run. Ask your agent to use UniYourApp. Replace the bracketed text below with your requirements.
 
 ```text
-Use $uni-your-app to fix settings-page alignment and redundant helper text.
-Keep the existing theme and check the affected controls in the actual interface.
+请使用 UniYourApp 开发这个项目。
+我想做的软件是［用途、主要功能和运行平台］。
+请遵循项目的技术栈与约定，并检查本次改动的实际结果。
 ```
-
-Ask Codex to initialize the current project's preferences and open the editor when configuration is needed. Configuration tools use Node.js 24 and can also be started from the installed skill directory.
 
 ```text
-node "<skill-directory>/scripts/config.mjs" ui --project "<project-directory>" --lang en
+Use UniYourApp to develop this project.
+I want to build [purpose, main features, and target platforms].
+Follow the project's stack and conventions,
+and check the actual behavior affected by the changes.
 ```
 
-The local editor supports personal/project layers, palette and typography controls, asset selection, sample-control previews, JSON import/export, and a diff before saving. Edits remain drafts until saved. Saves validate and retain a backup. Verify the actual application according to its project requirements.
+已有项目可以直接说明需要修改的功能。完成后，查看 Agent 提供的改动说明和验证结果。
 
-Personal defaults live in `uni-your-app` under the operating system's user configuration directory. Project overrides live in `.uni-your-app/config.local.json`, with effective Git exclusion verified before writing. Existing configurations under the previous name continue to work. Each layer prefers its new-name file when present. The current request and explicit project conventions take precedence. Unset preferences follow the project.
+For an existing project, describe the change you need. Review the agent's explanation of the changes and its verification results when the work is complete.
 
-### Scope
+## 偏好配置 · Preferences
 
-Engineering guidance covers modules, data, asynchronous behavior, and platform boundaries. Interface guidance covers hierarchy, controls, responsive layout, focus, and states. Verification follows the change's risk. README guidance organizes purpose, setup, examples, and documentation entry points.
+需要自定义配色、字体、布局或素材时，可以使用本地可视化配置器。它支持个人默认与项目覆盖、样例预览、JSON 导入导出和保存前差异检查。配置保存在本机，保存时会备份旧文件。
 
-**Avoid unnecessary secondary labels and descriptions. Let the layout do the explaining.** Preserve information needed for actions, labels, conditions, errors, and accessibility.
+Use the local visual editor to customize colors, typography, layout, or assets. It supports personal defaults and project overrides, sample previews, JSON import/export, and a diff before saving. Configuration stays on your machine, and saves retain a backup of the previous file.
 
-[Skill entry](English_Version/SKILL.md) · [Configuration schema](English_Version/config.schema.json) · [README writing](English_Version/references/readme.md) · [Maintenance](English_Version/AGENTS.md) · [MIT License](English_Version/LICENSE)
+这个可选工具需要 Node.js 24。将下面的请求发给 Agent，可以初始化当前项目的偏好并打开编辑器。
+
+This optional tool requires Node.js 24. Send the following request to initialize preferences for the current project and open the editor.
+
+```text
+请为当前项目初始化 UniYourApp 偏好，
+参考项目现有的设计设置，并打开本地配置界面供我调整。
+```
+
+```text
+Initialize UniYourApp preferences for the current project.
+Use its existing design settings and open the local editor.
+```
+
+<details>
+<summary>直接启动配置器 · Start the editor manually</summary>
+
+将命令中的路径替换为实际的技能安装目录和项目目录，然后运行。
+
+Replace the paths with the actual skill installation directory and project directory, then run the command.
+
+```sh
+node "<skill-directory>/scripts/config.mjs" ui --project "<project-directory>"
+```
+
+个人默认保存在系统用户配置目录下的 `uni-your-app`，项目覆盖保存在 `.uni-your-app/config.local.json`。工具会在写入项目配置前确认 Git 排除生效，项目明确约定优先于偏好设置。
+
+Personal defaults live in `uni-your-app` under the operating system's user configuration directory. Project overrides live in `.uni-your-app/config.local.json`. The tool verifies effective Git exclusion before writing project configuration. Explicit project conventions take precedence over preferences.
+
+</details>
+
+## 深入阅读 · Further reading
+
+完整规范可以从所选语言版本的技能入口继续阅读。配置字段由 JSON Schema 定义。
+
+Open the skill entry in your preferred language to explore the full guidance. Configuration fields are defined by the JSON Schema.
+
+- [中文版规范](中文版/SKILL.md) · [English guide](English_Version/SKILL.md)
+- [配置格式 · Configuration schema](中文版/config.schema.json)
+- [README 写作方法](中文版/references/readme.md) · [README writing guide](English_Version/references/readme.md)
+- [Agent Skills 标准 · Specification](https://agentskills.io/specification)
+- [MIT 许可证 · License](中文版/LICENSE)

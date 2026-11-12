@@ -25,7 +25,7 @@ export const maintenanceFiles = [
   'scripts/config.test.mjs',
   'scripts/validate.test.mjs',
 ];
-export const commonFiles = [...runtimeFiles, ...maintenanceFiles];
+export const commonFiles = [...runtimeFiles, ...maintenanceFiles, 'assets/readme-hero.png'];
 
 async function isFile(file) {
   try {
